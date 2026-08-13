@@ -17,7 +17,7 @@ const App: React.FC = () => {
     // Register service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/serviceWorker.js')
+        .register(`${import.meta.env.BASE_URL}serviceWorker.js`)
         .catch((error) => console.log('SW registration failed:', error));
     }
 

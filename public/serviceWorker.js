@@ -1,8 +1,16 @@
 const CACHE_NAME = 'dailyspend-v1';
+
+// Resolve the deployment base path from the service worker's own scope so the
+// PWA works when hosted under a subpath (e.g. /dailyspend-app/).
+const BASE = (() => {
+  const scope = self.registration.scope || './';
+  return scope.endsWith('/') ? scope : `${scope}/`;
+})();
+
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE,
+  `${BASE}index.html`,
+  `${BASE}manifest.json`,
 ];
 
 // Install event - cache assets
@@ -82,7 +90,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          return caches.match('/index.html') || new Response('Offline');
+          return caches.match(`${BASE}index.html`) || new Response('Offline');
         });
     })
   );
