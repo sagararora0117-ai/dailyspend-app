@@ -5,7 +5,10 @@ export interface Expense {
   title: string;
   amount: number;
   category: string;
+  subcategory?: string;
   date: string;
+  time?: string;
+  paymentMethod?: string;
   description?: string;
   createdAt: number;
   updatedAt: number;
