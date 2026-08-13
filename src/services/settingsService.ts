@@ -1,4 +1,5 @@
 import { db } from '../db/database';
+import { toCurrencyCode } from '../utils/currency';
 
 export class SettingsService {
   static async getSetting(key: string): Promise<string | boolean | number | null> {
@@ -39,9 +40,28 @@ export class SettingsService {
     return this.setSetting('currency', currency);
   }
 
-  static async getCurrency(): Promise<string> {
+  /**
+   * Returns the raw stored currency value ('USD', a legacy symbol like '$', ...)
+   * or null when no currency preference has been established yet.
+   */
+  static async getCurrency(): Promise<string | null> {
     const value = await this.getSetting('currency');
-    return typeof value === 'string' ? value : '$';
+    return typeof value === 'string' && value.length > 0 ? value : null;
+  }
+
+  /** Returns the stored currency normalized to an ISO 4217 code, or null. */
+  static async getCurrencyCode(): Promise<string | null> {
+    const value = await this.getCurrency();
+    return toCurrencyCode(value);
+  }
+
+  static async setCurrencySource(source: 'auto' | 'manual') {
+    return this.setSetting('currencySource', source);
+  }
+
+  static async getCurrencySource(): Promise<'auto' | 'manual' | null> {
+    const value = await this.getSetting('currencySource');
+    return value === 'auto' || value === 'manual' ? value : null;
   }
 
   static async setMonthlyBudget(amount: number) {

@@ -5,6 +5,7 @@ import { CategoryService } from '../services/categoryService';
 import { suggestExpenseCategory } from '../services/expenseSuggestionService';
 import { Category, Expense } from '../db/database';
 import { getTodayDate } from '../utils/dateUtils';
+import { currencySymbol } from '../utils/currency';
 
 interface AddExpenseProps {
   onSave: () => void;
@@ -69,6 +70,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onSave, editingExpense }) => {
     if (!Number.isFinite(amount) || amount <= 0) return setError('Enter an amount greater than zero.');
     if (!formData.category) return setError('Select a category.');
     if (!formData.date) return setError('Select a date.');
+    if (formData.date > getTodayDate()) return setError('Date cannot be in the future.');
     const title = formData.description.trim() || formData.subcategory || formData.category;
     const expenseData = {
       title, amount, category: formData.category, subcategory: formData.subcategory || undefined,
@@ -94,12 +96,12 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onSave, editingExpense }) => {
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {error && <div role="alert" style={{ backgroundColor: theme.error, color: 'white', padding: '12px', borderRadius: '10px' }}>{error}</div>}
       {saved && <div role="status" style={{ backgroundColor: theme.success, color: 'white', padding: '12px', borderRadius: '10px' }}>Expense saved</div>}
-      <div><label htmlFor="amount" style={labelStyle}>Amount ({currency})</label><input ref={amountRef} id="amount" type="number" name="amount" value={formData.amount} onChange={change} inputMode="decimal" placeholder="0.00" min="0.01" step="0.01" required style={{ ...fieldStyle(theme), fontSize: '28px', fontWeight: 700, padding: '16px' }} /></div>
+      <div><label htmlFor="amount" style={labelStyle}>Amount ({currencySymbol(currency)})</label><input ref={amountRef} id="amount" type="number" name="amount" value={formData.amount} onChange={change} inputMode="decimal" placeholder="0.00" min="0.01" step="0.01" required style={{ ...fieldStyle(theme), fontSize: '28px', fontWeight: 700, padding: '16px' }} /></div>
       <div><label htmlFor="category" style={labelStyle}>Category</label><select id="category" name="category" value={formData.category} onChange={change} required style={fieldStyle(theme)}>{categories.map((category) => <option key={category.id} value={category.name}>{category.icon} {category.name}</option>)}</select></div>
       {availableSubcategories.length > 0 && <div><label htmlFor="subcategory" style={labelStyle}>Subcategory</label><select id="subcategory" name="subcategory" value={formData.subcategory} onChange={change} style={fieldStyle(theme)}><option value="">Select subcategory (optional)</option>{availableSubcategories.map((subcategory) => <option key={subcategory} value={subcategory}>{subcategory}</option>)}</select></div>}
       <div><label htmlFor="description" style={labelStyle}>Description (optional)</label><textarea id="description" name="description" value={formData.description} onChange={change} placeholder="e.g., Swiggy dinner" rows={3} style={{ ...fieldStyle(theme), minHeight: '96px', resize: 'vertical' }} />
         {suggestion && <div style={{ marginTop: '8px', padding: '10px', borderRadius: '10px', backgroundColor: theme.background, border: `1px solid ${theme.border}`, fontSize: '14px' }}>Suggested category: <strong>{suggestion.subcategory}</strong><button type="button" onClick={useSuggestion} style={{ marginLeft: '10px', border: 'none', borderRadius: '6px', padding: '6px 8px', color: 'white', backgroundColor: theme.primary, cursor: 'pointer' }}>Use suggestion</button></div>}</div>
-      <div><label htmlFor="date" style={labelStyle}>Date</label><input id="date" type="date" name="date" value={formData.date} onChange={change} required style={fieldStyle(theme)} /></div>
+      <div><label htmlFor="date" style={labelStyle}>Date</label><input id="date" type="date" name="date" value={formData.date} max={getTodayDate()} onChange={change} required style={fieldStyle(theme)} /></div>
       <div><label htmlFor="time" style={labelStyle}>Time (optional)</label><input id="time" type="time" name="time" value={formData.time} onChange={change} style={fieldStyle(theme)} /></div>
       <div><label htmlFor="paymentMethod" style={labelStyle}>Payment method (optional)</label><select id="paymentMethod" name="paymentMethod" value={formData.paymentMethod} onChange={change} style={fieldStyle(theme)}><option value="">Select payment method</option>{['UPI', 'Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Other'].map((method) => <option key={method} value={method}>{method}</option>)}</select></div>
       <button type="submit" disabled={loading || saved} style={{ minHeight: '52px', marginTop: '8px', borderRadius: '10px', border: 'none', backgroundColor: theme.primary, color: 'white', fontSize: '16px', fontWeight: 700, cursor: loading || saved ? 'not-allowed' : 'pointer', opacity: loading || saved ? 0.6 : 1 }}>{loading ? 'Saving…' : editingExpense ? 'Update expense' : 'Save expense'}</button>

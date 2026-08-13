@@ -1,4 +1,5 @@
 import { format, parse, startOfMonth, endOfMonth, isToday, isYesterday } from 'date-fns';
+import { currencySymbol, DEFAULT_CURRENCY_CODE } from './currency';
 
 export const formatDate = (dateStr: string): string => {
   const date = parse(dateStr, 'yyyy-MM-dd', new Date());
@@ -12,8 +13,24 @@ export const formatDateShort = (dateStr: string): string => {
   return format(date, 'MMM d');
 };
 
-export const formatCurrency = (amount: number, currency: string = '$'): string => {
-  return `${currency}${amount.toFixed(2)}`;
+// Formats an amount using Intl.NumberFormat (two decimals), falling back to the
+// legacy toFixed(2) if Intl is unavailable.
+const formatAmount = (amount: number): string => {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return amount.toFixed(2);
+  }
+};
+
+export const formatCurrency = (amount: number, currency: string = DEFAULT_CURRENCY_CODE): string => {
+  // Resolve the ISO code if possible; Intl number formatting handles the digits
+  // while the deterministic symbol table keeps the presentation identical to
+  // the previous `${symbol}${12.34}` behavior across every currency.
+  return `${currencySymbol(currency)}${formatAmount(amount)}`;
 };
 
 export const getTodayDate = (): string => {

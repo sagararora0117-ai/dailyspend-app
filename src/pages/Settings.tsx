@@ -6,6 +6,7 @@ import { CategoryService } from '../services/categoryService';
 import { BudgetService } from '../services/budgetService';
 import { Category, Budget } from '../db/database';
 import { formatCurrency, getCurrentMonth } from '../utils/dateUtils';
+import { CURRENCY_METADATA } from '../utils/currency';
 
 const Settings: React.FC = () => {
   const { theme, toggleDarkMode, currency, setCurrency, isDarkMode } = useAppContext();
@@ -15,6 +16,7 @@ const Settings: React.FC = () => {
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddBudget, setShowAddBudget] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryError, setCategoryError] = useState('');
   const [newBudgetCategory, setNewBudgetCategory] = useState('');
   const [newBudgetAmount, setNewBudgetAmount] = useState('');
   const [monthlyBudget, setMonthlyBudget] = useState('');
@@ -57,19 +59,21 @@ const Settings: React.FC = () => {
   };
 
   const handleAddCategory = async () => {
-    if (!newCategoryName.trim()) return;
+    const name = newCategoryName.trim();
+    if (!name) return;
 
     try {
       await CategoryService.addCategory({
-        name: newCategoryName.trim(),
+        name,
         color: '#' + Math.floor(Math.random() * 16777215).toString(16),
         icon: '📌',
       });
       setNewCategoryName('');
+      setCategoryError('');
       setShowAddCategory(false);
       await loadSettings();
     } catch (error) {
-      console.error('Failed to add category:', error);
+      setCategoryError(error instanceof Error ? error.message : 'Failed to add category.');
     }
   };
 
@@ -194,12 +198,11 @@ const Settings: React.FC = () => {
             fontSize: '14px',
           }}
         >
-          <option value="$">$ (USD)</option>
-          <option value="€">€ (EUR)</option>
-          <option value="£">£ (GBP)</option>
-          <option value="¥">¥ (JPY)</option>
-          <option value="₹">₹ (INR)</option>
-          <option value="₽">₽ (RUB)</option>
+          {CURRENCY_METADATA.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.symbol} ({c.code})
+            </option>
+          ))}
         </select>
       </div>
 
@@ -306,37 +309,45 @@ const Settings: React.FC = () => {
         </div>
 
         {showAddCategory && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-            <input
-              type="text"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Category name"
-              style={{
-                flex: 1,
-                padding: '8px',
-                borderRadius: '6px',
-                border: `1px solid ${theme.border}`,
-                backgroundColor: theme.background,
-                color: theme.text,
-                fontSize: '12px',
-              }}
-            />
-            <button
-              onClick={handleAddCategory}
-              style={{
-                backgroundColor: theme.primary,
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: '600',
-              }}
-            >
-              Add
-            </button>
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => {
+                  setNewCategoryName(e.target.value);
+                  setCategoryError('');
+                }}
+                placeholder="Category name"
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  borderRadius: '6px',
+                  border: `1px solid ${theme.border}`,
+                  backgroundColor: theme.background,
+                  color: theme.text,
+                  fontSize: '12px',
+                }}
+              />
+              <button
+                onClick={handleAddCategory}
+                style={{
+                  backgroundColor: theme.primary,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                }}
+              >
+                Add
+              </button>
+            </div>
+            {categoryError && (
+              <p style={{ color: theme.error, fontSize: '12px', marginTop: '6px' }}>{categoryError}</p>
+            )}
           </div>
         )}
 
