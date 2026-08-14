@@ -6,8 +6,9 @@ import Home from './pages/Home';
 import AddExpense from './pages/AddExpense';
 import Insights from './pages/Insights';
 import Settings from './pages/Settings';
+import Feedback from './pages/Feedback';
 
-type Page = 'home' | 'add-expense' | 'insights' | 'settings';
+type Page = 'home' | 'add-expense' | 'insights' | 'settings' | 'feedback';
 
 const App: React.FC = () => {
   const { isInitialized, theme } = useAppContext();
@@ -63,6 +64,8 @@ const App: React.FC = () => {
         return <Insights />;
       case 'settings':
         return <Settings />;
+      case 'feedback':
+        return <Feedback />;
       case 'home':
       default:
         return <Home />;

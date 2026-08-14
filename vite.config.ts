@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: '/dailyspend-app/',
+  base: mode === 'production' ? '/dailyspend-app/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,4 +19,4 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
-})
+}))

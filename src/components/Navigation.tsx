@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 
-type PageType = 'home' | 'add-expense' | 'insights' | 'settings';
+type PageType = 'home' | 'add-expense' | 'insights' | 'settings' | 'feedback';
 
 interface NavigationProps {
   currentPage: PageType;
@@ -22,6 +22,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
     { id: 'add-expense', label: 'Add', icon: '➕' },
     { id: 'insights', label: 'Insights', icon: '📊' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'feedback', label: 'Feedback', icon: '💬' },
   ];
 
   return (

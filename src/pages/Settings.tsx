@@ -20,6 +20,8 @@ const Settings: React.FC = () => {
   const [newBudgetCategory, setNewBudgetCategory] = useState('');
   const [newBudgetAmount, setNewBudgetAmount] = useState('');
   const [monthlyBudget, setMonthlyBudget] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [exportMessage, setExportMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -49,12 +51,23 @@ const Settings: React.FC = () => {
   };
 
   const handleExportCSV = async () => {
+    setExporting(true);
+    setExportMessage(null);
     try {
       const csv = await ExportService.exportExpensesToCSV();
       const filename = `expenses_${new Date().toISOString().split('T')[0]}.csv`;
-      ExportService.downloadCSV(csv, filename);
+      const result = await ExportService.exportAndShare(csv, filename);
+      if (result === 'shared') {
+        setExportMessage({ type: 'success', text: 'CSV shared — use “Save to Files” to keep it.' });
+      } else if (result === 'downloaded') {
+        setExportMessage({ type: 'success', text: 'CSV downloaded.' });
+      }
+      // 'cancelled' -> user dismissed the share sheet; no message needed.
     } catch (error) {
       console.error('Failed to export CSV:', error);
+      setExportMessage({ type: 'error', text: 'Export failed. Please try again.' });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -264,6 +277,7 @@ const Settings: React.FC = () => {
         <p style={{ fontWeight: '600', fontSize: '14px', marginBottom: '8px' }}>Export Data</p>
         <button
           onClick={handleExportCSV}
+          disabled={exporting}
           style={{
             width: '100%',
             padding: '10px',
@@ -271,13 +285,26 @@ const Settings: React.FC = () => {
             backgroundColor: theme.success,
             color: 'white',
             border: 'none',
-            cursor: 'pointer',
+            cursor: exporting ? 'progress' : 'pointer',
             fontSize: '14px',
             fontWeight: '600',
+            opacity: exporting ? 0.7 : 1,
           }}
         >
-          📥 Export to CSV
+          {exporting ? '⏳ Preparing…' : '📥 Export to CSV'}
         </button>
+        {exportMessage && (
+          <p
+            role="status"
+            style={{
+              color: exportMessage.type === 'success' ? theme.success : theme.error,
+              fontSize: '12px',
+              marginTop: '8px',
+            }}
+          >
+            {exportMessage.text}
+          </p>
+        )}
       </div>
 
       {/* Categories */}
