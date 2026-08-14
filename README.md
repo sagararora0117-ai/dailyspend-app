@@ -249,7 +249,15 @@ Potential features for future versions:
 
 ## 📄 License
 
-Open source and available for commercial use.
+## 📄 License
+
+**All Rights Reserved.**
+
+Copyright © 2026 Sagar Arora.
+
+The DailySpend source code is publicly available for transparency and evaluation. No license is granted to copy, modify, redistribute, sublicense, or use the code or derivative works commercially without explicit permission from the copyright holder.
+
+For licensing or commercial-use requests, please contact the copyright holder.
 
 ## 🤝 Contributing
 
