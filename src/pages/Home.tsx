@@ -101,7 +101,7 @@ const Home: React.FC = () => {
   return (
     <div
       style={{
-        padding: '44px 20px 20px',
+        padding: '64px 20px 20px',
         maxWidth: '600px',
         margin: '0 auto',
       }}
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
               color: theme.textSecondary,
               fontSize: '16px',
               fontWeight: '500',
-              marginBottom: '6px',
+              marginBottom: '16px',
             }}
           >
             👋 Hi {userName}, {getGreeting()}
