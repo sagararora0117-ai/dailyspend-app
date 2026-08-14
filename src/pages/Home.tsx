@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { ExpenseService } from '../services/expenseService';
 import { Expense } from '../db/database';
 import { formatCurrency, getTodayDate, getCurrentMonth } from '../utils/dateUtils';
+import { getCurrentWeatherEmoji } from '../services/weatherService';
 import ExpenseCard from '../components/ExpenseCard';
 import SearchBar from '../components/SearchBar';
 
@@ -19,6 +20,7 @@ const Home: React.FC = () => {
   const [stats, setStats] = useState<Stats>({ today: 0, thisMonth: 0, total: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [weatherEmoji, setWeatherEmoji] = useState<string | null>(null);
 
   const [userName] = useState(() => {
     try {
@@ -48,6 +50,28 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     loadExpenses();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadWeather = async () => {
+      try {
+        const emoji = await getCurrentWeatherEmoji();
+
+        if (!cancelled) {
+          setWeatherEmoji(emoji);
+        }
+      } catch (error) {
+        console.error('Failed to load weather:', error);
+      }
+    };
+
+    loadWeather();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const loadExpenses = async () => {
@@ -118,6 +142,7 @@ const Home: React.FC = () => {
             }}
           >
             👋 Hi {userName}, {getGreeting()}
+            {weatherEmoji && ` ${weatherEmoji}`}
           </p>
         )}
 
