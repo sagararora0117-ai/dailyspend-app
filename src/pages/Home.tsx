@@ -20,6 +20,32 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const [userName] = useState(() => {
+    try {
+      return localStorage.getItem('dailyspend_user_name') || '';
+    } catch {
+      return '';
+    }
+  });
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning';
+    }
+
+    if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon';
+    }
+
+    if (hour >= 17 && hour < 21) {
+      return 'Good Evening';
+    }
+
+    return 'Good Night';
+  };
+
   useEffect(() => {
     loadExpenses();
   }, []);
@@ -55,6 +81,7 @@ const Home: React.FC = () => {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
+
     if (query.trim() === '') {
       setFilteredExpenses(expenses);
     } else {
@@ -74,14 +101,50 @@ const Home: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      {/* Header */}
+      {/* Personalized Greeting */}
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}>Daily Spend</h1>
-        <p style={{ color: theme.textSecondary, fontSize: '14px' }}>Track your expenses</p>
+        {userName && (
+          <p
+            style={{
+              color: theme.textSecondary,
+              fontSize: '16px',
+              fontWeight: '500',
+              marginBottom: '6px',
+            }}
+          >
+            👋 Hi {userName}, {getGreeting()}
+          </p>
+        )}
+
+        <h1
+          style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            marginBottom: '10px',
+          }}
+        >
+          Daily Spend
+        </h1>
+
+        <p
+          style={{
+            color: theme.textSecondary,
+            fontSize: '14px',
+          }}
+        >
+          Track your expenses
+        </p>
       </div>
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px',
+          marginBottom: '20px',
+        }}
+      >
         <div
           style={{
             backgroundColor: theme.surface,
@@ -90,11 +153,27 @@ const Home: React.FC = () => {
             border: `1px solid ${theme.border}`,
           }}
         >
-          <p style={{ color: theme.textSecondary, fontSize: '12px', marginBottom: '8px' }}>Today</p>
-          <p style={{ fontSize: '20px', fontWeight: 'bold', color: theme.primary }}>
+          <p
+            style={{
+              color: theme.textSecondary,
+              fontSize: '12px',
+              marginBottom: '8px',
+            }}
+          >
+            Today
+          </p>
+
+          <p
+            style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: theme.primary,
+            }}
+          >
             {formatCurrency(stats.today, currency)}
           </p>
         </div>
+
         <div
           style={{
             backgroundColor: theme.surface,
@@ -103,8 +182,23 @@ const Home: React.FC = () => {
             border: `1px solid ${theme.border}`,
           }}
         >
-          <p style={{ color: theme.textSecondary, fontSize: '12px', marginBottom: '8px' }}>This Month</p>
-          <p style={{ fontSize: '20px', fontWeight: 'bold', color: theme.secondary }}>
+          <p
+            style={{
+              color: theme.textSecondary,
+              fontSize: '12px',
+              marginBottom: '8px',
+            }}
+          >
+            This Month
+          </p>
+
+          <p
+            style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: theme.secondary,
+            }}
+          >
             {formatCurrency(stats.thisMonth, currency)}
           </p>
         </div>
@@ -115,25 +209,53 @@ const Home: React.FC = () => {
 
       {/* Expenses List */}
       <div style={{ marginTop: '20px' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+        <h2
+          style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '12px',
+          }}
+        >
           {searchQuery ? 'Search Results' : 'Recent Expenses'}
         </h2>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: theme.textSecondary }}>
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              color: theme.textSecondary,
+            }}
+          >
             Loading...
           </div>
         ) : filteredExpenses.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: theme.textSecondary }}>
-            {searchQuery ? 'No expenses found' : 'No expenses yet. Add one to get started!'}
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              color: theme.textSecondary,
+            }}
+          >
+            {searchQuery
+              ? 'No expenses found'
+              : 'No expenses yet. Add one to get started!'}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
             {filteredExpenses.map((expense) => (
               <ExpenseCard
                 key={expense.id}
                 expense={expense}
-                onDelete={() => expense.id && handleDeleteExpense(expense.id)}
+                onDelete={() =>
+                  expense.id && handleDeleteExpense(expense.id)
+                }
               />
             ))}
           </div>
