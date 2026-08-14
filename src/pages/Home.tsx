@@ -57,7 +57,6 @@ const Home: React.FC = () => {
       setExpenses(allExpenses);
       setFilteredExpenses(allExpenses);
 
-      // Calculate stats
       const today = getTodayDate();
       const todayExpenses = allExpenses.filter((exp) => exp.date === today);
       const todayTotal = todayExpenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -100,7 +99,13 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+    <div
+      style={{
+        padding: '44px 20px 20px',
+        maxWidth: '600px',
+        margin: '0 auto',
+      }}
+    >
       {/* Personalized Greeting */}
       <div style={{ marginBottom: '20px' }}>
         {userName && (
